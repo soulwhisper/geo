@@ -1,0 +1,66 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Update Geo Data
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: "0 1 * * 0"
+
+jobs:
+  update-geo:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
+
+      - name: Download files from download.txt
+        run: |
+          find mosdns singbox -name "download.txt" -type f | while read file; do
+            dir=$(dirname "$file")
+            echo "Processing directory: $dir"
+            mkdir -p "$dir"
+
+            while IFS= read -r url || [ -n "$url" ]; do
+              if [ -n "$url" ]; then
+                filename=$(basename "$url")
+                echo "Downloading: $url"
+                curl -L -o "$dir/$filename" "$url"
+              fi
+            done < "$file"
+          done
+
+      - name: unpack geosite
+        run: |
+          go install -v github.com/metacubex/geo/cmd/geo@master
+
+          echo "Downloading geosite.dat"
+          curl -L -o geosite.dat "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
+
+          mkdir -p output mosdns/unpack
+
+          geo unpack site ./geosite.dat -d output -c cn
+          mv output/cn mosdns/unpack/geosite_cn.list
+
+          geo unpack site ./geosite.dat -d output -c geolocation-!cn
+          mv output/geolocation-!cn mosdns/unpack/geosite_geolocation-!cn.list
+
+          rm -f geosite.dat
+          rm -rf output
+
+      - name: Auto commit
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update geo data files"
+
+  workflow-keepalive:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - uses: liskin/gh-workflow-keepalive@v1

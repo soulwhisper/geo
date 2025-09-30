@@ -1,0 +1,674 @@
+log:
+  level: error
+  file: "/var/lib/mosdns.log"
+
+api:
+  http: "0.0.0.0:9099"
+
+include: []
+
+# : mark map
+# 101: request unclassified
+# 102: request polluted
+# 103: request foreign
+# 201: list grey
+# 202: list white
+# 203: list realip
+# 301: routing direct
+# 302: routing proxy
+# 303: routing unclassified
+# 304: routing fakeip
+
+plugins:
+  # : learner
+  - tag: learner_unclassified
+    type: domain_output
+    args:
+      file_stat: /var/lib/mosdns/gen/notin_list.txt
+      file_rule: /var/lib/mosdns/gen/notin_rule.txt
+      max_entries: 20
+      dump_interval: 36000
+
+  - tag: learner_realip
+    type: domain_output
+    args:
+      file_stat: /var/lib/mosdns/gen/realip_list.txt
+      file_rule: /var/lib/mosdns/gen/realip_rule.txt
+      max_entries: 1000
+      dump_interval: 36005
+
+  - tag: learner_fakeip
+    type: domain_output
+    args:
+      file_stat: /var/lib/mosdns/gen/fakeip_list.txt
+      file_rule: /var/lib/mosdns/gen/fakeip_rule.txt
+      max_entries: 1000
+      dump_interval: 36010
+
+  - tag: learner_ipv4_only
+    type: domain_output
+    args:
+      file_stat: /var/lib/mosdns/gen/v4only_list.txt
+      file_rule: /var/lib/mosdns/gen/v4only_rule.txt
+      max_entries: 10
+      dump_interval: 36020
+
+  - tag: learner_ipv6_only
+    type: domain_output
+    args:
+      file_stat: /var/lib/mosdns/gen/v6only_list.txt
+      file_rule: /var/lib/mosdns/gen/v6only_rule.txt
+      max_entries: 3
+      dump_interval: 36030
+
+  - tag: learner_node_v4only
+    type: domain_output
+    args:
+      file_stat: /var/lib/mosdns/gen/node_v4only_list.txt
+      file_rule: /var/lib/mosdns/gen/node_v4only_rule.txt
+      max_entries: 1000
+      dump_interval: 36070
+
+  - tag: learner_node_v6only
+    type: domain_output
+    args:
+      file_stat: /var/lib/mosdns/gen/node_v6only_list.txt
+      file_rule: /var/lib/mosdns/gen/node_v6only_rule.txt
+      max_entries: 2
+      dump_interval: 36080
+
+  # : ruleset
+  - tag: rule_realip
+    type: domain_set
+    args:
+      files:
+        - "/var/lib/mosdns/gen/realip_rule.txt"
+
+  - tag: rule_fakeip
+    type: domain_set
+    args:
+      files:
+        - "/var/lib/mosdns/gen/fakeip_rule.txt"
+
+  - tag: rule_ipv4_only
+    type: domain_set
+    args:
+      files:
+        - "/var/lib/mosdns/gen/v4only_rule.txt"
+
+  - tag: rule_ipv6_only
+    type: domain_set
+    args:
+      files:
+        - "/var/lib/mosdns/gen/v6only_rule.txt"
+
+  - tag: rule_node_ipv4_only
+    type: domain_set
+    args:
+      files:
+        - "/var/lib/mosdns/gen/node_v4only_rule.txt"
+
+  - tag: rule_node_ipv6_only
+    type: domain_set
+    args:
+      files:
+        - "/var/lib/mosdns/gen/node_v6only_rule.txt"
+
+  - tag: rule_geoip_cn
+    type: ip_set
+    args:
+      files:
+        - "/var/lib/mosdns/unpack/cn.list"
+
+  - tag: rule_geosite_cn
+    type: domain_set
+    args:
+      files:
+        - "/var/lib/mosdns/unpack/geosite_cn.list"
+
+  - tag: rule_geosite_foreign
+    type: domain_set
+    args:
+      files:
+        - "/var/lib/mosdns/unpack/geosite_geolocation-!cn.list"
+
+  - tag: rule_whitelist
+    type: domain_set
+    args:
+      files:
+        - "/var/lib/mosdns/rule/whitelist.txt"
+
+  - tag: rule_blocklist
+    type: domain_set
+    args:
+      files:
+        - "/var/lib/mosdns/rule/blocklist.txt"
+
+  - tag: rule_realiplist
+    type: domain_set
+    args:
+      files:
+        - "/var/lib/mosdns/rule/realiplist.txt"
+
+  - tag: rule_greylist
+    type: domain_set
+    args:
+      files:
+        - "/var/lib/mosdns/rule/greylist.txt"
+
+  - tag: rule_hosts
+    type: hosts
+    args:
+      files:
+        - "/var/lib/mosdns/rule/hosts.txt"
+
+  # : cache
+  - tag: cache_all
+    type: cache
+    args:
+      size: 20000000
+      lazy_cached_ttl: 259200000
+      dump_file: /var/lib/mosdns/cache_all.dump
+      dump_interval: 36000
+
+  - tag: cache_direct
+    type: cache
+    args:
+      size: 20000000
+      lazy_cached_ttl: 259200000
+      dump_file: /var/lib/mosdns/cache_direct.dump
+      dump_interval: 36000
+
+  - tag: cache_proxy
+    type: cache
+    args:
+      size: 20000000
+      lazy_cached_ttl: 259200000
+      dump_file: /var/lib/mosdns/cache_proxy.dump
+      dump_interval: 36000
+
+  - tag: cache_node
+    type: cache
+    args:
+      size: 20000000
+      lazy_cached_ttl: 259200000
+      dump_file: /var/lib/mosdns/cache_node.dump
+      dump_interval: 36000
+
+  # upstream
+  - tag: upstream_proxy
+    type: forward
+    args:
+      concurrent: 2
+      upstreams:
+        - addr: "https://1.1.1.1/dns-query"
+          socks5: "127.0.0.1:1080"
+        - addr: "https://8.8.8.8/dns-query"
+          socks5: "127.0.0.1:1080"
+          upstream_query_timeout: 1000
+
+  - tag: upstream_direct
+    type: forward
+    args:
+      concurrent: 3
+      upstreams:
+        - addr: "223.5.5.5"
+        - addr: "quic://223.5.5.5"
+
+  - tag: upstream_fakeip
+    type: forward
+    args:
+      concurrent: 1
+      upstreams:
+        - addr: "udp://127.0.0.1:7891" # singbox direct
+
+  - tag: upstream_global_cached
+    type: forward
+    args:
+      concurrent: 1
+      upstreams:
+        - addr: "udp://127.0.0.1:5301"
+
+  - tag: upstream_direct_cached
+    type: forward
+    args:
+      concurrent: 1
+      upstreams:
+        - addr: "udp://127.0.0.1:5302"
+
+  - tag: upstream_proxy_cached
+    type: forward
+    args:
+      concurrent: 1
+      upstreams:
+        - addr: "udp://127.0.0.1:5303"
+
+  # : sequence
+  # :: internal
+  - tag: sequence_direct_internal
+    type: sequence
+    args:
+      - exec: $cache_direct
+      - matches: has_resp
+        exec: accept
+      - exec: $upstream_direct
+
+  - tag: sequence_proxy_internal
+    type: sequence
+    args:
+      - exec: $cache_proxy
+      - matches: has_resp
+        exec: accept
+      - exec: $upstream_proxy
+
+  # :: external
+  - tag: sequence_direct
+    type: sequence
+    args:
+      - exec: drop_resp # drop blockhole ip
+      - exec: $upstream_direct_cached
+
+  - tag: sequence_fakeip
+    type: sequence
+    args:
+      - exec: drop_resp # drop blockhole ip
+      - exec: $upstream_fakeip
+
+  - tag: sequence_proxy
+    type: sequence
+    args:
+      - exec: drop_resp # drop blockhole ip
+      - exec: $upstream_proxy_cached
+
+  - tag: sequence_global_single
+    type: sequence
+    args:
+      - matches: "qtype 6 12 65"
+        exec: reject 0
+      - exec: $cache_all
+      - matches: has_resp
+        exec: accept
+      - exec: $upstream_global_cached
+
+  - tag: sequence_global
+    type: fallback
+    args:
+      primary: sequence_global_single
+      secondary: sequence_global_single
+      threshold: 3
+      always_standby: false
+
+  # : classifier
+  - tag: classifier_direct
+    type: sequence
+    args:
+      - matches: qname $rule_geosite_cn
+        exec: black_hole 127.0.0.1 ::1
+
+  - tag: classifier_proxy
+    type: sequence
+    args:
+      - matches: qname $rule_geosite_foreign
+        exec: black_hole 127.0.0.2 ::2
+      - matches: "!resp_ip 127.0.0.2 ::2"
+        exec: black_hole 127.0.0.3 ::3
+
+  - tag: classifier_learned_direct
+    type: sequence
+    args:
+      - matches: qname $rule_realip
+        exec: black_hole 127.0.0.1 ::1
+
+  - tag: classifier_learned_proxy
+    type: sequence
+    args:
+      - matches: qname $rule_fakeip
+        exec: black_hole 127.0.0.2 ::2
+      - matches: "!resp_ip 127.0.0.2 ::2"
+        exec: black_hole 127.0.0.3 ::3
+
+  - tag: classifier_learned_fallback
+    type: fallback
+    args:
+      primary: classifier_learned_direct
+      secondary: classifier_learned_proxy
+      threshold: 20000
+      always_standby: true
+
+  - tag: classifier_fallback
+    type: fallback
+    args:
+      primary: classifier_direct
+      secondary: classifier_proxy
+      threshold: 20000
+      always_standby: true
+
+  # : unclassified
+  - tag: sequence_unclassified
+    type: sequence
+    args:
+      # mark unclassified
+      - matches: "resp_ip 127.0.0.3 ::3"
+        exec: mark 101
+      # handle unclassified
+      - matches: mark 101
+        exec: drop_resp
+      - matches: mark 101
+        exec: $learner_unclassified
+      - matches: mark 101
+        exec: $sequence_direct
+      # handle direct
+      - matches:
+          - "mark 101"
+          - "qtype 28"
+          - "rcode 0 2 3 5"
+          - "!resp_ip 2000::/3"
+          - "!resp_ip ::1"
+        exec: ttl 60000
+      - matches:
+          - "mark 101"
+          - "qtype 28"
+          - "rcode 0 2 3 5"
+          - "!resp_ip 2000::/3"
+          - "!resp_ip ::1"
+          - "!cname keyword:."
+        exec: $learner_ipv4_only
+      - matches:
+          - "mark 101"
+          - "qtype 28"
+          - "rcode 0 2 3 5"
+          - "!resp_ip 2000::/3"
+          - "!resp_ip ::1"
+        exec: accept
+      # detect polluted
+      - matches: "!resp_ip 0.0.0.0/0 2000::/3"
+        exec: mark 102
+      - matches: "resp_ip 127.0.0.1 0.0.0.0 ::1"
+        exec: mark 102
+      # handle polluted
+      - matches: mark 102
+        exec: drop_resp
+      - matches: mark 102
+        exec: $sequence_proxy
+      # handle normal
+      - matches: "!resp_ip 0.0.0.0/0 2000::/3"
+        exec: ttl 60000
+      - matches:
+          - "qtype 28"
+          - "rcode 0 2 3 5"
+          - "!resp_ip 2000::/3"
+          - "!cname keyword:."
+        exec: $learner_ipv4_only
+      - matches:
+          - "qtype 1"
+          - "rcode 0 2 3 5"
+          - "!resp_ip 0.0.0.0/0"
+          - "!cname keyword:."
+        exec: $learner_ipv6_only
+      - matches: "!resp_ip 0.0.0.0/0 2000::/3"
+        exec: accept
+      - matches: "resp_ip 127.0.0.1 0.0.0.0 ::1"
+        exec: accept
+      # handle apple
+      - matches: "resp_ip 17.0.0.0/8"
+        exec: $learner_realip
+      - matches: "resp_ip 17.0.0.0/8"
+        exec: accept
+      # handle geoip
+      - matches: "!resp_ip $rule_geoip_cn"
+        exec: mark 103
+      - matches: mark 103
+        exec: $sequence_fakeip
+      - matches: mark 103
+        exec: $learner_fakeip
+      - exec: accept
+
+  # : main
+  - tag: sequence_main
+    type: sequence
+    args:
+      # blocklist
+      - matches: qname $rule_blocklist
+        exec: reject 3
+      - exec: $rule_hosts
+      - matches: has_resp
+        exec: accept
+      - matches: "!qtype 1 28"
+        exec: $sequence_proxy
+      - matches: "!qtype 1 28"
+        exec: accept
+      # greylist
+      - matches: qname $rule_greylist
+        exec: mark 201
+      - matches: mark 201
+        exec: $sequence_fakeip
+      - matches: mark 201
+        exec: accept
+      # ip type
+      - matches:
+          - qtype 1
+          - qname $rule_ipv6_only
+        exec: reject 0
+      - matches:
+          - qtype 28
+          - qname $rule_ipv4_only
+        exec: reject 0
+      # whitelist
+      - matches: qname $rule_whitelist
+        exec: mark 202
+      - matches: mark 202
+        exec: $sequence_direct
+      - matches:
+          - "mark 202"
+          - "rcode 0 2 3 5"
+          - "!resp_ip 0.0.0.0/0 2000::/3"
+        exec: ttl 60000
+      - matches:
+          - "qtype 28"
+          - "mark 202"
+          - "rcode 0 2 3 5"
+          - "!resp_ip 2000::/3"
+          - "!cname keyword:."
+        exec: $learner_ipv4_only
+      - matches:
+          - "qtype 1"
+          - "mark 202"
+          - "rcode 0 2 3 5"
+          - "!resp_ip 0.0.0.0/0"
+          - "!cname keyword:."
+        exec: $learner_ipv6_only
+      - matches: mark 202
+        exec: accept
+      # learned realip
+      - matches: qname $rule_realip
+        exec: mark 203
+      - matches: mark 203
+        exec: $sequence_proxy
+      - matches: mark 203
+        exec: accept
+      # classify
+      - exec: $classifier_learned_fallback
+      - matches: "resp_ip 127.0.0.1 ::1"
+        exec: mark 301 # direct
+      - matches: "resp_ip 127.0.0.2 ::2"
+        exec: mark 302 # proxy
+      - matches: "resp_ip 127.0.0.3 ::3"
+        exec: mark 303 # unclassified
+      # handle results
+      - matches: mark 303
+        exec: drop_resp
+      - matches: mark 303
+        exec: $classifier_fallback
+      - matches: "resp_ip 127.0.0.1 ::1"
+        exec: $sequence_direct
+      - matches: "resp_ip 127.0.0.2 ::2"
+        exec: mark 304
+      - matches: mark 304
+        exec: $sequence_fakeip
+      - matches:
+          - "mark 304"
+          - "!mark 302"
+        exec: $learner_fakeip
+      - matches: mark 304
+        exec: accept
+      # special
+      - matches:
+          - "!mark 301"
+          - "resp_ip 17.0.0.0/8"
+        exec: $learner_realip
+      - matches: "resp_ip 17.0.0.0/8"
+        exec: accept
+      # optimize
+      - matches:
+          - "qtype 28"
+          - "rcode 0 2 3 5"
+          - "!resp_ip 2000::/3"
+          - "!resp_ip ::1 ::2 ::3"
+        exec: ttl 60000
+      - matches:
+          - "qtype 28"
+          - "rcode 0 2 3 5"
+          - "!resp_ip 2000::/3"
+          - "!resp_ip ::1 ::2 ::3"
+          - "!cname keyword:."
+        exec: $learner_ipv4_only
+      - matches:
+          - "qtype 28"
+          - "!mark 301"
+          - "resp_ip 2000::/3"
+          - "!resp_ip ::1 ::2 ::3"
+        exec: $learner_realip
+      - matches:
+          - "qtype 28"
+          - "!resp_ip ::1 ::2 ::3"
+        exec: accept
+      - matches:
+          - "qtype 1"
+          - "!mark 301"
+          - "resp_ip 0.0.0.0/0"
+          - "!resp_ip 0.0.0.0 127.0.0.1 127.0.0.2 127.0.0.3"
+        exec: $learner_realip
+      - matches:
+          - "qtype 1"
+          - "resp_ip 0.0.0.0/0"
+          - "!resp_ip 0.0.0.0 127.0.0.1 127.0.0.2 127.0.0.3"
+        exec: accept
+      # fallback
+      - exec: $sequence_unclassified
+      - exec: accept
+
+  # : node
+  - tag: fallback_node
+    type: fallback
+    args:
+      primary: sequence_proxy
+      secondary: sequence_direct
+      threshold: 5
+      always_standby: false
+
+  - tag: sequence_node
+    type: sequence
+    args:
+      - matches:
+          - qtype 1
+          - qname $rule_node_ipv6_only
+        exec: reject 0
+      - matches:
+          - qtype 28
+          - qname $rule_node_ipv4_only
+        exec: reject 0
+      - exec: $cache_node
+      - matches: has_resp
+        exec: accept
+      - exec: sleep 1000
+      - exec: $fallback_node
+      - matches:
+          - "qtype 1"
+          - "rcode 0 2 3 5"
+          - "!resp_ip 0.0.0.0/0"
+          - "!cname keyword:."
+        exec: $learner_node_v6only
+      - matches:
+          - "qtype 28"
+          - "rcode 0 2 3 5"
+          - "!resp_ip 2000::/3"
+          - "!cname keyword:."
+        exec: $learner_node_v4only
+
+  # : servers
+  # :: global
+  - tag: server_tcp_all
+    type: tcp_server
+    args:
+      entry: sequence_global
+      listen: ":5300"
+      idle_timeout: 720
+
+  - tag: server_udp_all
+    type: udp_server
+    args:
+      entry: sequence_global
+      listen: ":5300"
+
+  # :: internal
+  - tag: server_tcp_main
+    type: tcp_server
+    args:
+      entry: sequence_main
+      listen: ":5301"
+      idle_timeout: 720
+
+  - tag: server_udp_main
+    type: udp_server
+    args:
+      entry: sequence_main
+      listen: ":5301"
+
+  - tag: server_tcp_direct
+    type: tcp_server
+    args:
+      entry: sequence_direct_internal
+      listen: ":5302"
+
+  - tag: server_udp_direct
+    type: udp_server
+    args:
+      entry: sequence_direct_internal
+      listen: ":5302"
+
+  - tag: server_tcp_proxy
+    type: tcp_server
+    args:
+      entry: sequence_proxy_internal
+      listen: ":5303"
+
+  - tag: server_udp_proxy
+    type: udp_server
+    args:
+      entry: sequence_proxy_internal
+      listen: ":5303"
+
+  # :: singbox
+  - tag: server_tcp_singbox
+    type: tcp_server
+    args:
+      entry: sequence_direct
+      listen: ":5310"
+
+  - tag: server_udp_singbox
+    type: udp_server
+    args:
+      entry: sequence_direct
+      listen: ":5310"
+
+  - tag: server_tcp_singbox_node
+    type: tcp_server
+    args:
+      entry: sequence_node
+      listen: ":5311"
+
+  - tag: server_udp_singbox_node
+    type: udp_server
+    args:
+      entry: sequence_node
+      listen: ":5311"

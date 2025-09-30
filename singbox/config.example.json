@@ -1,0 +1,625 @@
+{
+  "log": {
+    "disabled": true,
+    "level": "debug",
+    "timestamp": true
+  },
+  "experimental": {
+    "clash_api": {
+      "external_controller": "0.0.0.0:9090",
+      "external_ui": "/var/lib/singbox/ui",
+      "secret": "singbox",
+      "default_mode": "global"
+    },
+    "cache_file": {
+      "enabled": true,
+      "path": "/var/lib/singbox/cache.db",
+      "store_fakeip": true
+    }
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "localDNS",
+        "address": "udp://127.0.0.1:5310",
+        "detour": "direct"
+      },
+      {
+        "tag": "nodeDNS",
+        "address": "udp://127.0.0.1:5311",
+        "detour": "direct"
+      },
+      {
+        "tag": "fakeipDNS",
+        "address": "fakeip"
+      }
+    ],
+    "rules": [
+      {
+        "inbound": "in-dns",
+        "rewrite_ttl": 3,
+        "server": "fakeipDNS"
+      },
+      {
+        "outbound": "direct",
+        "server": "localDns"
+      },
+      {
+        "outbound": "any",
+        "server": "nodedns"
+      }
+    ],
+    "fakeip": {
+      "enabled": true,
+      "inet4_range": "28.0.0.0/8",
+      "inet6_range": "fc00::/18"
+    },
+    "independent_cache": true,
+    "cache_capacity": 10240,
+    "disable_expire": false,
+    "final": "localDns"
+  },
+  "inbounds": [
+    {
+      "type": "tproxy",
+      "tag": "tp",
+      "listen": "::",
+      "listen_port": 7890,
+      "tcp_fast_open": true,
+      "sniff": false,
+      "sniff_override_destination": false,
+      "sniff_timeout": "300ms",
+      "udp_disable_domain_unmapping": false,
+      "udp_timeout": "5m"
+    },
+    {
+      "type": "direct",
+      "tag": "in-dns",
+      "tcp_fast_open": true,
+      "sniff": false,
+      "listen": "::",
+      "listen_port": 7891
+    },
+    {
+      "type": "redirect",
+      "tag": "re",
+      "listen": "::",
+      "listen_port": 7892,
+      "tcp_fast_open": true,
+      "sniff": false,
+      "sniff_override_destination": false,
+      "sniff_timeout": "300ms",
+      "udp_disable_domain_unmapping": false,
+      "udp_timeout": "5m"
+    },
+    {
+      "type": "socks",
+      "listen": "0.0.0.0",
+      "listen_port": 1080,
+      "tcp_multi_path": false,
+      "tcp_fast_open": true,
+      "udp_fragment": false,
+      "sniff": false,
+      "users": []
+    },
+    {
+      "type": "shadowsocks",
+      "tag": "ss-in",
+      "tcp_fast_open": true,
+      "listen": "0.0.0.0",
+      "listen_port": 11000,
+      "method": "aes-128-gcm",
+      "password": "FakeIPBest4Ever",
+      "multiplex": {
+        "enabled": true,
+        "padding": false
+      }
+    }
+  ],
+  "providers": [
+    {
+      "type": "remote",
+      "path": "/var/lib/singbox/providers/sub.txt",
+      "tag": "🛫 link",
+      "url": "subscription-url",
+      "update_interval": "24000h",
+      "download_detour": "direct"
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "selector",
+      "tag": "♻️ Manual",
+      "use_all_providers": true,
+      "exclude": "(?i)Premium|GB|Traffic|Reset|Expire"
+    },
+    {
+      "type": "selector",
+      "tag": "🚀 Select",
+      "outbounds": [
+        "🔄 Auto",
+        "♻️ Manual",
+        "🇯🇵 Japan",
+        "✨Taiwan",
+        "🇸🇬 Singapore",
+        "🇭🇰 HongKong",
+        "🇺🇲 USA",
+        "🔰 Other"
+      ],
+      "exclude": "Premium",
+      "default": "♻️ Manual"
+    },
+    {
+      "tag": "🎬 MediaVideo",
+      "type": "selector",
+      "outbounds": [
+        "🚀 Select",
+        "♻️ Manual",
+        "✨Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇭🇰 HongKong",
+        "🇺🇲 USA",
+        "🔰 Other"
+      ],
+      "exclude": "Premium",
+      "default": "🚀 Select"
+    },
+    {
+      "tag": "🤖 OpenAI",
+      "type": "selector",
+      "outbounds": [
+        "🚀 Select",
+        "♻️ Manual",
+        "✨Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇭🇰 HongKong",
+        "🇺🇲 USA",
+        "🔰 Other"
+      ],
+      "exclude": "Premium",
+      "default": "🇺🇲 USA"
+    },
+    {
+      "type": "selector",
+      "tag": "📲 Telegram",
+      "outbounds": [
+        "🚀 Select",
+        "♻️ Manual",
+        "✨Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇭🇰 HongKong",
+        "🇺🇲 USA",
+        "🔰 Other"
+      ],
+      "exclude": "Premium"
+    },
+    {
+      "type": "selector",
+      "tag": "🍎 Apple",
+      "outbounds": [
+        "direct",
+        "🚀 Select",
+        "♻️ Manual",
+        "🇯🇵 Japan",
+        "✨Taiwan",
+        "🇸🇬 Singapore",
+        "🇭🇰 HongKong",
+        "🇺🇲 USA",
+        "🔰 Other"
+      ],
+      "exclude": "Premium",
+      "default": "direct"
+    },
+    {
+      "tag": "🧩 Microsoft",
+      "type": "selector",
+      "outbounds": [
+        "direct",
+        "🚀 Select",
+        "♻️ Manual",
+        "✨Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇭🇰 HongKong",
+        "🇺🇲 USA",
+        "🔰 Other"
+      ],
+      "exclude": "Premium",
+      "default": "🚀 Select"
+    },
+    {
+      "tag": "🌌 Google",
+      "type": "selector",
+      "outbounds": [
+        "🚀 Select",
+        "♻️ Manual",
+        "✨Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇭🇰 HongKong",
+        "🇺🇲 USA",
+        "🔰 Other"
+      ],
+      "exclude": "Premium",
+      "default": "🚀 Select"
+    },
+    {
+      "tag": "🐦 Twitter",
+      "type": "selector",
+      "outbounds": [
+        "🚀 Select",
+        "♻️ Manual",
+        "✨Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇭🇰 HongKong",
+        "🇺🇲 USA",
+        "🔰 Other"
+      ],
+      "exclude": "Premium",
+      "default": "🚀 Select"
+    },
+    {
+      "tag": "👤 Facebook",
+      "type": "selector",
+      "outbounds": [
+        "🚀 Select",
+        "♻️ Manual",
+        "✨Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇭🇰 HongKong",
+        "🇺🇲 USA",
+        "🔰 Other"
+      ],
+      "exclude": "Premium",
+      "default": "🚀 Select"
+    },
+    {
+      "tag": "🛍️ Amazon",
+      "type": "selector",
+      "outbounds": [
+        "🚀 Select",
+        "♻️ Manual",
+        "✨Taiwan",
+        "🇯🇵 Japan",
+        "🇸🇬 Singapore",
+        "🇭🇰 HongKong",
+        "🇺🇲 USA",
+        "🔰 Other"
+      ],
+      "exclude": "Premium",
+      "default": "🚀 Select"
+    },
+    {
+      "type": "selector",
+      "tag": "🐟 Leaked",
+      "outbounds": ["🚀 Select"],
+      "exclude": "(?i)Premium|GB|Traffic|Reset|Expire"
+    },
+    {
+      "tag": "🎮 Game",
+      "type": "selector",
+      "outbounds": [
+        "direct",
+        "🚀 Select",
+        "♻️ Manual",
+        "🇯🇵 Japan",
+        "✨Taiwan",
+        "🇸🇬 Singapore",
+        "🇭🇰 HongKong",
+        "🇺🇲 USA",
+        "🔰 Other"
+      ],
+      "exclude": "Premium",
+      "default": "direct"
+    },
+    {
+      "type": "urltest",
+      "tag": "🔄 Auto",
+      "use_all_providers": true,
+      "exclude": "(?i)Premium|GB|Traffic|Reset|Expire",
+      "idle_timeout": "30001h",
+      "interval": "30000h",
+      "tolerance": 50
+    },
+    {
+      "tag": "direct",
+      "type": "direct",
+      "tcp_fast_open": true,
+      "udp_fragment": false,
+      "tcp_multi_path": false
+    },
+    {
+      "tag": "tolan",
+      "type": "direct",
+      "bind_interface": "br-lan"
+    },
+    {
+      "type": "selector",
+      "tag": "🇯🇵 Japan",
+      "use_all_providers": true,
+      "include": "(?i)日本|东京|大阪|[^-]日|JP|Japan",
+      "exclude": "Premium"
+    },
+    {
+      "type": "selector",
+      "tag": "🇸🇬 Singapore",
+      "use_all_providers": true,
+      "include": "(?i)新加坡|坡|狮城|SG|Singapore",
+      "exclude": "Premium"
+    },
+    {
+      "type": "selector",
+      "tag": "🇭🇰 HongKong",
+      "use_all_providers": true,
+      "include": "(?i)香港|HK|hk|Hong Kong|HongKong|hongkong",
+      "exclude": "Premium"
+    },
+    {
+      "type": "selector",
+      "tag": "✨Taiwan",
+      "use_all_providers": true,
+      "include": "(?i)🇹🇼|TW|tw|台湾|臺灣|台|Taiwan",
+      "exclude": "Premium"
+    },
+    {
+      "type": "selector",
+      "tag": "🇺🇲 USA",
+      "use_all_providers": true,
+      "include": "(?i)美|达拉斯|洛杉矶|圣何塞|US|United States",
+      "exclude": "Premium"
+    },
+    {
+      "type": "selector",
+      "tag": "🔰 Other",
+      "use_all_providers": true,
+      "include": "(?i)德国|DE|brd|germany|荷兰|NL|Netherlands|法国|FR|France|French Republic|澳大利亚|AU|Australia|迪拜|UAE|Dubai|印度|IN|India|KR|Korea|KOR|首尔|韩|韓|英国|UnitedKingdom|UK|英|瑞典|Sweden|SE|巴西|Brazil|BR|非洲|Africa|AF",
+      "exclude": "Premium"
+    }
+  ],
+  "route": {
+    "final": "♻️ Manual",
+    "auto_detect_interface": true,
+    "default_mark": 1,
+    "rules": [
+      {
+        "inbound": "in-dns",
+        "action": "hijack-dns"
+      },
+      {
+        "ip_cidr": ["8.8.8.8", "8.8.4.4", "1.1.1.1", "1.0.0.1", "9.9.9.9"],
+        "outbound": "🚀 Select"
+      },
+      {
+        "type": "logical",
+        "mode": "and",
+        "rules": [
+          {
+            "inbound": "ss-in"
+          },
+          {
+            "ip_cidr": ["10.10.10.0/24"]
+          }
+        ],
+        "outbound": "tolan"
+      },
+      {
+        "network": "udp",
+        "port": 443,
+        "action": "reject",
+        "method": "drop"
+      },
+      {
+        "rule_set": "s-youtube",
+        "outbound": "🌌 Google"
+      },
+      {
+        "rule_set": "s-openai",
+        "outbound": "🤖 OpenAI"
+      },
+      {
+        "type": "logical",
+        "mode": "and",
+        "rules": [
+          {
+            "clash_mode": "global"
+          },
+          {
+            "clash_mode": "rule",
+            "invert": true
+          }
+        ],
+        "outbound": "🐟 Leaked"
+      },
+      {
+        "clash_mode": "direct",
+        "action": "reject",
+        "method": "drop"
+      },
+      {
+        "rule_set": ["s-google", "s-github"],
+        "outbound": "🌌 Google"
+      },
+      {
+        "rule_set": ["s-telegram", "i-telegram"],
+        "outbound": "📲 Telegram"
+      },
+      {
+        "rule_set": "s-apple",
+        "outbound": "🍎 Apple"
+      },
+      {
+        "rule_set": "s-microsoft",
+        "outbound": "🧩 Microsoft"
+      },
+      {
+        "rule_set": ["s-netflix", "i-netflix"],
+        "outbound": "🎬 MediaVideo"
+      },
+      {
+        "rule_set": ["s-tiktok", "s-twitter"],
+        "outbound": "🐦 Twitter"
+      },
+      {
+        "rule_set": ["s-facebook", "s-instagram"],
+        "outbound": "👤 Facebook"
+      },
+      {
+        "rule_set": "s-amazon",
+        "outbound": "🛍️ Amazon"
+      },
+      {
+        "rule_set": ["s-hbo", "s-disney", "s-primevideo"],
+        "outbound": "🎬 MediaVideo"
+      },
+      {
+        "rule_set": "s-gamescn",
+        "outbound": "direct"
+      },
+      {
+        "rule_set": "s-games",
+        "outbound": "🎮 Game"
+      },
+      {
+        "rule_set": "i-cn",
+        "outbound": "direct"
+      },
+      {
+        "ip_is_private": true,
+        "outbound": "direct"
+      }
+    ],
+    "rule_set": [
+      {
+        "tag": "i-telegram",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geoip/telegram.srs"
+      },
+      {
+        "tag": "i-netflix",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geoip/netflix.srs"
+      },
+      {
+        "tag": "i-cn",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geoip/geoip-cn.srs"
+      },
+      {
+        "tag": "s-openai",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-openai.srs"
+      },
+      {
+        "tag": "s-youtube",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-youtube.srs"
+      },
+      {
+        "tag": "s-google",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-google.srs"
+      },
+      {
+        "tag": "s-github",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-github.srs"
+      },
+      {
+        "tag": "s-telegram",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-telegram.srs"
+      },
+      {
+        "tag": "s-twitter",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-twitter.srs"
+      },
+      {
+        "tag": "s-facebook",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-facebook.srs"
+      },
+      {
+        "tag": "s-instagram",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-instagram.srs"
+      },
+      {
+        "tag": "s-amazon",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-amazon.srs"
+      },
+      {
+        "tag": "s-apple",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-apple.srs"
+      },
+      {
+        "tag": "s-microsoft",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-microsoft.srs"
+      },
+      {
+        "tag": "s-games",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-category-games.srs"
+      },
+      {
+        "tag": "s-gamescn",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-category-games@cn.srs"
+      },
+      {
+        "tag": "s-tiktok",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-tiktok.srs"
+      },
+      {
+        "tag": "s-netflix",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-netflix.srs"
+      },
+      {
+        "tag": "s-hbo",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-hbo.srs"
+      },
+      {
+        "tag": "s-disney",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-disney.srs"
+      },
+      {
+        "tag": "s-primevideo",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/singbox/geosite/geosite-primevideo.srs"
+      }
+    ]
+  }
+}
