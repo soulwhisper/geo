@@ -1,6 +1,6 @@
 log:
   level: error
-  file: "/var/lib/mosdns.log"
+  file: "/var/lib/mosdns/mosdns.log"
 
 api:
   http: "0.0.0.0:9099"
