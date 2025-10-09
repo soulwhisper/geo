@@ -34,10 +34,11 @@ jobs:
             done < "$file"
           done
 
-      - name: unpack geosite
+      - name: update Geo data
         run: |
           go install -v github.com/metacubex/geo/cmd/geo@master
 
+          # mosdns
           echo "Downloading geosite.dat"
           curl -L -o geosite.dat "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
 
@@ -49,7 +50,15 @@ jobs:
           geo unpack site ./geosite.dat -d output -c geolocation-!cn
           mv output/geolocation-!cn mosdns/unpack/geosite_geolocation-!cn.list
 
-          rm -f geosite.dat
+          # dae
+          echo "Downloading geoip.dat"
+          curl -L -o geoip.dat "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat"
+
+          mkdir -p dae
+          mv ./geoip.dat dae/geoip.dat
+          mv ./geosite.dat dae/geosite.dat
+
+          # cleanup
           rm -rf output
 
       - name: Auto commit
