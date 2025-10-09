@@ -6,7 +6,7 @@
   },
   "experimental": {
     "clash_api": {
-      "external_controller": "0.0.0.0:9090",
+      "external_controller": "0.0.0.0:9201",
       "external_ui": "/var/lib/singbox/ui",
       "secret": "singbox",
       "default_mode": "global"
@@ -21,43 +21,36 @@
     "servers": [
       {
         "tag": "localDNS",
-        "address": "udp://127.0.0.1:5310",
+        "type": "udp",
+        "server": "127.0.0.1",
+        "server_port": 5310,
         "detour": "direct"
       },
       {
         "tag": "nodeDNS",
-        "address": "udp://127.0.0.1:5311",
+        "type": "udp",
+        "server": "127.0.0.1",
+        "server_port": 5311,
         "detour": "direct"
       },
       {
-        "tag": "fakeipDNS",
-        "address": "fakeip"
+        "tag": "fakeip",
+        "type": "fakeip",
+        "inet4_range": "28.0.0.0/8",
+        "inet6_range": "fc00::/18"
       }
     ],
     "rules": [
       {
         "inbound": "in-dns",
         "rewrite_ttl": 3,
-        "server": "fakeipDNS"
-      },
-      {
-        "outbound": "direct",
-        "server": "localDns"
-      },
-      {
-        "outbound": "any",
-        "server": "nodedns"
+        "server": "fakeip"
       }
     ],
-    "fakeip": {
-      "enabled": true,
-      "inet4_range": "28.0.0.0/8",
-      "inet6_range": "fc00::/18"
-    },
     "independent_cache": true,
     "cache_capacity": 10240,
     "disable_expire": false,
-    "final": "localDns"
+    "final": "localDNS"
   },
   "inbounds": [
     {
@@ -331,12 +324,18 @@
       "type": "direct",
       "tcp_fast_open": true,
       "udp_fragment": false,
-      "tcp_multi_path": false
+      "tcp_multi_path": false,
+      "domain_resolver": {
+        "server": "localDNS"
+      }
     },
     {
       "tag": "tolan",
       "type": "direct",
-      "bind_interface": "br-lan"
+      "bind_interface": "br-lan",
+      "domain_resolver": {
+        "server": "localDNS"
+      }
     },
     {
       "type": "selector",
@@ -385,6 +384,9 @@
     "final": "♻️ Manual",
     "auto_detect_interface": true,
     "default_mark": 1,
+    "default_domain_resolver": {
+      "server": "nodeDNS"
+    },
     "rules": [
       {
         "inbound": "in-dns",
