@@ -35,7 +35,7 @@ plugins:
       file_stat: /var/lib/mosdns/gen/realip_list.txt
       file_rule: /var/lib/mosdns/gen/realip_rule.txt
       max_entries: 1000
-      dump_interval: 36005
+      dump_interval: 36000
 
   - tag: learner_fakeip
     type: domain_output
@@ -43,7 +43,7 @@ plugins:
       file_stat: /var/lib/mosdns/gen/fakeip_list.txt
       file_rule: /var/lib/mosdns/gen/fakeip_rule.txt
       max_entries: 1000
-      dump_interval: 36010
+      dump_interval: 36000
 
   - tag: learner_ipv4_only
     type: domain_output
@@ -51,7 +51,7 @@ plugins:
       file_stat: /var/lib/mosdns/gen/v4only_list.txt
       file_rule: /var/lib/mosdns/gen/v4only_rule.txt
       max_entries: 10
-      dump_interval: 36020
+      dump_interval: 36000
 
   - tag: learner_ipv6_only
     type: domain_output
@@ -59,7 +59,7 @@ plugins:
       file_stat: /var/lib/mosdns/gen/v6only_list.txt
       file_rule: /var/lib/mosdns/gen/v6only_rule.txt
       max_entries: 3
-      dump_interval: 36030
+      dump_interval: 36000
 
   - tag: learner_node_v4only
     type: domain_output
@@ -67,7 +67,7 @@ plugins:
       file_stat: /var/lib/mosdns/gen/node_v4only_list.txt
       file_rule: /var/lib/mosdns/gen/node_v4only_rule.txt
       max_entries: 1000
-      dump_interval: 36070
+      dump_interval: 36000
 
   - tag: learner_node_v6only
     type: domain_output
@@ -75,7 +75,7 @@ plugins:
       file_stat: /var/lib/mosdns/gen/node_v6only_list.txt
       file_rule: /var/lib/mosdns/gen/node_v6only_rule.txt
       max_entries: 2
-      dump_interval: 36080
+      dump_interval: 36000
 
   # : ruleset
   - tag: rule_realip
@@ -220,7 +220,7 @@ plugins:
     args:
       concurrent: 1
       upstreams:
-        - addr: "udp://127.0.0.1:7891" # singbox direct
+        - addr: "udp://127.0.0.1:7891" # proxy direct
 
   - tag: upstream_global_cached
     type: forward

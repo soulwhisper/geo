@@ -1,21 +1,26 @@
 global {
-    wan_interface: auto
     tproxy_port: 7890
     tproxy_port_protect: true
-    so_mark_from_dae: 1000
+    so_mark_from_dae: 0
     log_level: trace
-    dial_mode: domain
+    wan_interface: auto
     auto_config_kernel_parameter: true
-    tcp_check_url: 'http://cp.cloudflare.com,1.1.1.1,2606:4700:4700::1111'
-    udp_check_dns: 'dns.google.com:53,8.8.8.8,2001:4860:4860::8888'
+    # tcp_check_url: 'http://cp.cloudflare.com,1.1.1.1,2606:4700:4700::1111'
+    # udp_check_dns: 'dns.google.com:53,8.8.8.8,2001:4860:4860::8888'
+    check_interval: 30s
     check_tolerance: 50ms
+    dial_mode: domain
+    sniffing_timeout: 100ms
+    tls_implementation: utls
+    utls_imitate: chrome_auto
 }
 
 subscription {
-    default: 'file://subscription.sub'
+    default: 'file://default.sub'
 }
 
 dns {
+    ipversion_prefer: 4
     upstream {
         googledns: 'tcp+udp://dns.google:53'
         alidns: 'udp://dns.alidns.com:53'
@@ -39,10 +44,10 @@ dns {
 group {
     proxy {
         filter: name(keyword: 'Hong Kong')
-        filter: name(keyword: 'Singapore')
-        filter: name(keyword: 'USA')
-        filter: name(keyword: 'Taiwan')
         filter: name(keyword: 'Japan')
+        filter: name(keyword: 'Singapore')
+        filter: name(keyword: 'Taiwan')
+        filter: name(keyword: 'USA')
         policy: min_moving_avg
     }
 }
@@ -60,7 +65,7 @@ routing {
     dip(geoip:private) -> direct
 
     # l4proto(udp) && dport(443) -> block
-    
+
     domain(geosite:apple@cn) -> direct
     domain(geosite:steam@cn) -> direct
     domain(geosite:tencent) -> direct
