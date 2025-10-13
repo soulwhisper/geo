@@ -167,7 +167,6 @@ plugins:
     type: cache
     args:
       size: 20000000
-      lazy_cached_ttl: 259200000
       dump_file: /var/lib/mosdns/cache_all.dump
       dump_interval: 36000
 
@@ -175,7 +174,6 @@ plugins:
     type: cache
     args:
       size: 20000000
-      lazy_cached_ttl: 259200000
       dump_file: /var/lib/mosdns/cache_direct.dump
       dump_interval: 36000
 
@@ -183,7 +181,6 @@ plugins:
     type: cache
     args:
       size: 20000000
-      lazy_cached_ttl: 259200000
       dump_file: /var/lib/mosdns/cache_proxy.dump
       dump_interval: 36000
 
@@ -191,7 +188,6 @@ plugins:
     type: cache
     args:
       size: 20000000
-      lazy_cached_ttl: 259200000
       dump_file: /var/lib/mosdns/cache_node.dump
       dump_interval: 36000
 
