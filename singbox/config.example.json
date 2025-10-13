@@ -59,17 +59,12 @@
       "listen": "::",
       "listen_port": 7890,
       "tcp_fast_open": true,
-      "sniff": false,
-      "sniff_override_destination": false,
-      "sniff_timeout": "300ms",
-      "udp_disable_domain_unmapping": false,
       "udp_timeout": "5m"
     },
     {
       "type": "direct",
       "tag": "in-dns",
       "tcp_fast_open": true,
-      "sniff": false,
       "listen": "::",
       "listen_port": 7891
     },
@@ -79,21 +74,13 @@
       "listen": "::",
       "listen_port": 7892,
       "tcp_fast_open": true,
-      "sniff": false,
-      "sniff_override_destination": false,
-      "sniff_timeout": "300ms",
-      "udp_disable_domain_unmapping": false,
       "udp_timeout": "5m"
     },
     {
-      "type": "socks",
+      "type": "mixed",
       "listen": "0.0.0.0",
       "listen_port": 1080,
-      "tcp_multi_path": false,
-      "tcp_fast_open": true,
-      "udp_fragment": false,
-      "sniff": false,
-      "users": []
+      "tcp_fast_open": true
     },
     {
       "type": "shadowsocks",
