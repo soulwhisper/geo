@@ -112,7 +112,6 @@
   "providers": [
     {
       "type": "remote",
-      "path": "/var/lib/singbox/providers/sub.txt",
       "tag": "🛫 link",
       "url": "$SUBSCRIPTION",
       "update_interval": "24000h",
