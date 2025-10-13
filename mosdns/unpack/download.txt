@@ -1,1 +1,1 @@
-https://github.com/MetaCubeX/meta-rules-dat/blob/meta/geo/geoip/cn.list
+https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/meta/geo/geoip/cn.list
