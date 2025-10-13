@@ -114,7 +114,7 @@
       "type": "remote",
       "path": "/var/lib/singbox/providers/sub.txt",
       "tag": "🛫 link",
-      "url": "subscription-url",
+      "url": "$SUBSCRIPTION",
       "update_interval": "24000h",
       "download_detour": "direct"
     }
