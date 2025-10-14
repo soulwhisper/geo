@@ -302,8 +302,9 @@
       "use_all_providers": true,
       "exclude": "(?i)Premium|GB|Traffic|Reset|Expire",
       "idle_timeout": "30m",
-      "interval": "5m",
-      "tolerance": 50
+      "interval": "10m",
+      "tolerance": 50,
+      "interrupt_exist_connections": false
     },
     {
       "tag": "direct",
