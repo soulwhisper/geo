@@ -9,7 +9,7 @@
       "external_controller": "0.0.0.0:9201",
       "external_ui": "/var/lib/singbox/ui",
       "secret": "singbox",
-      "default_mode": "global"
+      "default_mode": "rule"
     },
     "cache_file": {
       "enabled": true,
