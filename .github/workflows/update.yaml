@@ -5,7 +5,7 @@ name: Update Geo Data
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: "0 1 * * 0"
+    - cron: "0 1 * * *"
 
 jobs:
   update-geo:
@@ -37,24 +37,19 @@ jobs:
       - name: update Geo data
         run: |
           go install -v github.com/metacubex/geo/cmd/geo@master
+          mkdir -p output
 
           # mosdns
-          echo "Downloading geosite.dat"
           curl -L -o geosite.dat "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
-
-          mkdir -p output mosdns/unpack
-
+          mkdir -p mosdns/unpack
           geo unpack site ./geosite.dat -d output -c cn
           mv output/cn mosdns/unpack/geosite_cn.list
-
           geo unpack site ./geosite.dat -d output -c geolocation-!cn
           mv output/geolocation-!cn mosdns/unpack/geosite_geolocation-!cn.list
 
           # dae
-          echo "Downloading geoip.dat"
-          curl -L -o geoip.dat "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat"
-
           mkdir -p dae
+          curl -L -o geoip.dat "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat"
           mv ./geoip.dat dae/geoip.dat
           mv ./geosite.dat dae/geosite.dat
 
