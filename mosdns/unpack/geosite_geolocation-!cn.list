@@ -3455,7 +3455,6 @@ domain:bing
 domain:bing.com
 domain:bing.net
 domain:bing123.com
-domain:bingads.com
 domain:bingagencyawards.com
 domain:bingapis.com
 domain:bingapistatistics.com
@@ -8079,7 +8078,6 @@ domain:facebook30.com
 domain:facebook30.net
 domain:facebook30.org
 domain:facebook4business.com
-domain:facebookads.com
 domain:facebookadvertisingsecrets.com
 domain:facebookappcenter.info
 domain:facebookappcenter.net
@@ -14715,7 +14713,6 @@ domain:microsoft.vn
 domain:microsoft365.com
 domain:microsoftaccountguard.com
 domain:microsoftadc.com
-domain:microsoftads.com
 domain:microsoftadvertising.com
 domain:microsoftadvertisingregionalawards.com
 domain:microsoftaffiliates.com
@@ -15465,7 +15462,6 @@ domain:ms-studiosmedia.com
 domain:ms365surfaceoffer.com
 domain:ms4dre.com
 domain:msa-it.org
-domain:msads.net
 domain:msauth.net
 domain:mschallenge2018.com
 domain:msdn.com
@@ -19566,6 +19562,7 @@ domain:sensorynetworks.com
 domain:sensualgirls.org
 domain:sensualmothers.com
 domain:sensueel.net
+domain:sentry-cdn.com
 domain:sentry.io
 domain:senzuritv.net
 domain:seqing.one
